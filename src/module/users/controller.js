@@ -48,7 +48,7 @@ const getUser = catchAsync(async (req, res) => {
 
 // Update user profile
 const updateProfile = catchAsync(async (req, res) => {
-  const { id } = req.params; 
+  const { id } = req.params; // Use id here instead of id
   const { fullName, email } = req.body;
   const image = req.file ? path.join("uploads", req.file.filename) : null;
 
@@ -64,14 +64,14 @@ const updateProfile = catchAsync(async (req, res) => {
 
 // Delete a user
 const deleteUser = catchAsync(async (req, res) => {
-  const { id } = req.params; 
+  const { id } = req.params; // Ensure that this correctly extracts the 'id' from the URL
   console.log("User ID to delete:", id); // Debugging log
   const result = await userService.deleteUser(id);
   console.log("Delete user result:", result); // Debugging log
   if (!result) {
     return res.status(httpStatus.NOT_FOUND).send({ message: "User not found" });
   }
-  res.status(httpStatus.NO_CONTENT).send(); 
+  res.status(httpStatus.NO_CONTENT).send(); // Responding with 204 for successful deletion
 });
 
 // Refresh authentication tokens
@@ -91,34 +91,11 @@ const forgotPassword = catchAsync(async (req, res) => {
 // Reset password
 const resetPassword = catchAsync(async (req, res) => {
   const { resetPasswordToken, newPassword } = req.body;
-  const response = await userService.resetPassword(resetPasswordToken, newPassword);
+  const response = await userService.resetPassword(
+    resetPasswordToken,
+    newPassword
+  );
   res.status(httpStatus.NO_CONTENT).send(response);
-});
-
-// Google OAuth Callback
-const googleCallback = catchAsync(async (req, res) => {
-  const user = req.user;  // User data from Google authentication
-  if (!user) {
-    return res.status(httpStatus.UNAUTHORIZED).send({ message: "Google Authentication failed" });
-  }
-
-  // Generate authentication tokens (JWT)
-  const tokens = await tokenService.generateAuthTokens(user);
-
-  res.status(httpStatus.OK).send({ user, tokens });
-});
-
-// Facebook OAuth Callback
-const facebookCallback = catchAsync(async (req, res) => {
-  const user = req.user;  // User data from Facebook authentication
-  if (!user) {
-    return res.status(httpStatus.UNAUTHORIZED).send({ message: "Facebook Authentication failed" });
-  }
-
-  // Generate authentication tokens (JWT)
-  const tokens = await tokenService.generateAuthTokens(user);
-
-  res.status(httpStatus.OK).send({ user, tokens });
 });
 
 module.exports = {
@@ -132,6 +109,4 @@ module.exports = {
   queryUsers,
   updateProfile,
   deleteUser,
-  googleCallback,
-  facebookCallback,
 };
